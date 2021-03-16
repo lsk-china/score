@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Index</title>
+		<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="cache.js"></script>
+		<script src="layui/layui.js"></script>
+		<script src="CircularLoader-v1.3.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery.nicescroll@3.7.6/jquery.nicescroll.js"></script>
+		<link rel="stylesheet" href="layui/css/layui.css" media="all">
+		<meta charset="utf-8"/>
+		<style>
+			*{
+				margin:0px;
+				padding:0px;
+			}
+			.main-container,.score-container{
+				height: 100%;
+				width: 100%;
+				position: relative;
+			}
+			.background{
+                                height: 100%;
+                                width: 100%;
+                                position: absolute;
+                                top: 0px;
+                                z-index: 0;
+                                filter: blur(1.5px);
+                        }
+			.title,.t{
+				margin-top: 10px;
+				float: left;
+				margin-left: 75px;
+				margin-right: 75px;
+			}
+			.line{
+				height: 1px;
+				width: 200px;
+				background: black;
+				float: left;
+				margin-top: 30px;
+			}
+			.level{
+				width: 100%;
+				display: flex;
+				align-element: center;
+				justify-content: center;
+			}
+			.user-table{
+				background: white;
+			}
+		</style>
+	</head>
+	<body>
+		<img src="bg.jpg" class="background"></img>
+        	<div class="main-container">
+			<div style="width: 100%;display: flex;align-element: center;justify-content: center;">
+				<h1 class="title"></h1>
+			</div>	
+			<div style="width: 100%; height: 100px;"></div>
+			<div class="sub-title" style="width: 100%;display: flex;align-element: center;justify-content: center;">
+				<div class="line"></div>
+                                <h1 class="t">积分</h1>
+				<div class="line"></div>
+                        </div>
+			<div class="score-container" style="width: 100%;display: flex;align-element: center;justify-content: center;">
+				<div id="divProgress" style="height: 210px;"></div>				
+			</div>
+			<div class="level">
+				<h2 class="level-text"></h5>
+			</div>
+			<div style="width: 100%; height: 100px;"></div>
+			<div class="sub-title" style="width: 100%;display: flex;align-element: center;justify-content: center;">
+                                <div class="line"></div>
+                                <h1 class="t">操作</h1>
+                                <div class="line"></div>
+                        </div>
+			<div class="table-container" style="width: 100%;display: flex;align-element: center;justify-content: center;">
+				<table class="user-table" lay-filter="user"></table>
+			</div>
+		</div>
+                <script id="toolbar">
+                        <a class="layui-btn layui-btn-xs add-btn" lay-event="add">增加积分</a>
+                        <a class="layui-btn layui-btn-xs dec-btn" lay-event="dec">减少积分</a>
+                </script>
+		<script>
+			function addScore(id,add){
+                                 $.ajax({
+                                 	url: "http://localhost:9002/incScore",
+                                        method: "GET",
+                                        data: {
+                                        	id: id,
+                                                add: add
+                                        },
+                                        success: function(){
+                                                showSuccess();
+                                        }
+                                  });
+			}
+			function decScore(id,dec){
+                                 $.ajax({
+                                        url: "http://localhost:9002/decScore",
+                                        method: "GET",
+                                        data: {
+                                                id: id,
+                                                dec: dec
+                                        },
+                                        success: function(){
+                                                showSuccess();
+                                        }
+                                  });
+                        }
+			function showSuccess(){
+				layui.use('layer',function(){
+					let layer = layui.layer;
+					layer.open({
+						title: "提示",
+						content: "操作成功！"
+					});
+				});
+			}
+			function updateCache(name){
+				$.ajax({
+                                                url: "http://localhost:9002/queryUser",
+                                                method: "post",
+                                                data: {
+                                                        username: name
+                                                },
+                                                success: function(resp){
+                                                        if (resp == "User doesn't exists."){
+                                                                alert("用户不存在");
+                                                        }
+                                                        set("user",resp);
+                                                }
+                                });				
+			}
+			function load(){
+				let userinfo = get("user");
+				if (userinfo.name != "admin"){
+					window.location.href="index.html";
+				}
+				console.log(userinfo);
+				let title = "你好，"+userinfo.name;
+				$(".title").text(title);
+				let level = "等级："+userinfo.level;
+				$(".level-text").text(level);
+				layui.use('table', function(){
+					var table = layui.table;
+					table.render({
+						elem: '.user-table',
+						url: 'http://localhost:9002/queryAllUsers', 
+						page: false,
+						cols: [[ 
+							{field: 'id', title: 'ID', width:80, sort: true, fixed: 'left'}
+      							,{field: 'name', title: '用户名', width:200}
+      							,{field: 'level', title: '等级', width:200}
+      							,{field: 'score', title: '积分', width:100}
+							,{title: '操作', width:250,toolbar:"#toolbar"} 
+    						]]
+  					});
+					table.on('tool(user)', function(obj){
+						console.log(obj);
+						if (obj.event == "add"){
+							let id = obj.data.id;
+							layui.use('layer',function(){
+                                        			let layer = layui.layer;
+                                        			layer.prompt({
+                                                			formType: 2,
+                                                			value: '',
+                                                			title: "为"+obj.data.name+"增加积分",
+                                                			area: ['300px', '30px'] //自定义文本域宽高
+                                        			}, function(value, index, elem){
+                                                			addScore(id,parseInt(value));
+                                                                        updateCache();
+                                                			layer.close(index);
+                                                                        window.location.reload();
+                                        			});
+                                			});	
+						}else{
+							let id = obj.data.id;
+                                                        layui.use('layer',function(){
+                                                                let layer = layui.layer;
+                                                                layer.prompt({
+                                                                        formType: 2,
+                                                                        value: '',
+                                                                        title: "为"+obj.data.name+"减少积分",
+                                                                        area: ['300px', '30px'] //自定义文本域宽高
+                                                                }, function(value, index, elem){
+                                                                        decScore(id,parseInt(value));
+                                                                        obj.update({
+                                                                                score: obj.data.score - parseInt(value)
+                                                                        });
+                                                                        layer.close(index);
+                                                                });
+                                                        });
+						}
+					});
+				});
+                                $(".table-container").niceScroll({
+                                        ursorcolor: "#ccc",//#CC0071 光标颜色
+                                        cursoropacitymax: 1, //改变不透明度非常光标处于活动状态（scrollabar“可见”状态），范围从1到0
+                                        touchbehavior: false, //使光标拖动滚动像在台式电脑触摸设备
+                                        cursorwidth: "5px", //像素光标的宽度
+                                        cursorborder: "0", // 游标边框css定义
+                                        cursorborderradius: "5px",//以像素为光标边界半径
+                                        autohidemode: false //是否隐藏滚动条
+                                });
+				$("#divProgress").circularloader({
+					backgroundColor: "#ffffff",//background colour of inner circle
+					fontColor: "#000000",//font color of progress text
+					fontSize: "40px",//font size of progress text
+					radius: 70,//radius of circle
+					progressBarBackground: "#66ccff",//background colour of circular progress Bar
+					progressBarColor: "#ff4004",//colour of circular progress bar
+					progressBarWidth: 25,//progress bar width
+					progressPercent: userinfo.rate,//progress percentage out of 100
+					progressValue:userinfo.score,//diplay this value instead of percentage
+					showText: true
+				});
+				$(".add-btn").click(function(e){
+					console.log(e);
+				});
+				
+			}
+			window.addEventListener("load",load,true);
+		</script>
+	</body>
+</html>
+

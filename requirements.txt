@@ -1,0 +1,4 @@
+环境：
+	Mysql服务器，Nginx服务器，任意http服务器
+Python:
+	pymysql,flask

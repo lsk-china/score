@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Index</title>
+		<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="cache.js";></script>
+		<script src="CircularLoader-v1.3.js"></script>
+		<meta charset="utf-8"/>
+		<style>
+			*{
+				margin:0px;
+				padding:0px;
+			}
+			.main-container,.score-container{
+				height: 100%;
+				width: 100%;
+				position: relative;
+			}
+			.background{
+                                height: 100%;
+                                width: 100%;
+                                position: absolute;
+                                top: 0px;
+                                z-index: 0;
+                                filter: blur(1.5px);
+                        }
+			.title,.t{
+				margin-top: 10px;
+				float: left;
+				margin-left: 75px;
+				margin-right: 75px;
+			}
+			.line{
+				height: 1px;
+				width: 200px;
+				background: black;
+				float: left;
+				margin-top: 30px;
+			}
+			.level{
+				width: 100%;
+				display: flex;
+				align-element: center;
+				justify-content: center;
+			}
+		</style>
+	</head>
+	<body>
+		<img src="bg.jpg" class="background"></img>
+        	<div class="main-container">
+			<div style="width: 100%;display: flex;align-element: center;justify-content: center;">
+				<h1 class="title"></h1>
+			</div>	
+			<div style="width: 100%; height: 100px;"></div>
+			<div class="sub-title" style="width: 100%;display: flex;align-element: center;justify-content: center;">
+				<div class="line"></div>
+                                <h1 class="t">积分</h1>
+				<div class="line"></div>
+                        </div>
+			<div class="score-container" style="width: 100%;display: flex;align-element: center;justify-content: center;">
+				<div id="divProgress" style="height: 210px;"></div>				
+			</div>
+			<div class="level">
+				<h2 class="level-text"></h5>
+			</div>
+		</div>
+		<script>
+			function load(){
+				let userinfo = get("user");
+				console.log(userinfo);
+				let title = "你好，"+userinfo.name;
+				$(".title").text(title);
+				let level = "等级："+userinfo.level;
+				$(".level-text").text(level);
+				$("#divProgress").circularloader({
+					backgroundColor: "#ffffff",//background colour of inner circle
+					fontColor: "#000000",//font color of progress text
+					fontSize: "40px",//font size of progress text
+					radius: 70,//radius of circle
+					progressBarBackground: "#66ccff",//background colour of circular progress Bar
+					progressBarColor: "#ff4004",//colour of circular progress bar
+					progressBarWidth: 25,//progress bar width
+					progressPercent: userinfo.rate,//progress percentage out of 100
+					progressValue:userinfo.score,//diplay this value instead of percentage
+					showText: true
+				});
+				
+			}
+			window.addEventListener("load",load,true);
+		</script>
+	</body>
+</html>
+

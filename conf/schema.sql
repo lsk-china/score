@@ -1,0 +1,17 @@
+CREATE DATABASE score;
+
+CREATE TABLE score.table1 (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(50) NOT NULL,
+  level varchar(255) NOT NULL DEFAULT '小萌新',
+  score int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (id)
+)
+ENGINE = INNODB
+AUTO_INCREMENT = 1
+AVG_ROW_LENGTH = 8192
+CHARACTER SET utf8
+COLLATE utf8_general_ci
+ROW_FORMAT = DYNAMIC;
+
+INSERT INTO table1(name) VALUES("testuser");

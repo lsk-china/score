@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Index</title>
+		<meta charset='utf-8'/>
+		<script src="cache.js"></script>
+		<script src="sha256.js"></script>
+		<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+		<style>
+			*{
+				margin:0px;
+				padding:0px;
+			}
+			.main-container{
+				height: 100%;
+				width: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.panel{
+				height: 400px;
+				width: 500px;
+				// border: 1px solid black;
+				border-radius: 20px;
+				box-shadow: 2px 2px 20px #222;
+				position: absolute;
+				top: 75px;
+				z-index: 2;
+				background-color: white;
+				padding-top: 50px;
+				padding-left: 50px;
+			}
+			.background{
+				height: 100%;
+				width: 100%;
+				position: absolute;
+				top: 0px;
+				z-index: 0;
+				filter: blur(1.5px);
+			}
+			.label{
+				font-size: 1.5em;
+				margin-left: 20px;
+			}
+			.input{
+				height: 30px;
+				width: 250px;
+				border-radius: 5px;
+				border: 1px solid #888;
+				padding-left: 5px;
+				outline: none;
+			}
+			.button{
+				margin-left: 20px;
+				height: 45px;
+				width: 81.5%;
+				margin-top: 20px;
+				color: #FFF;
+				background-color: #409EFF;
+				border-color: #409EFF;
+				border-radius:5px;
+				transition: .3s;
+			}
+			.button:hover{
+				background-color: #308EEF;
+			}
+		</style>
+	</head>
+	<body>
+        	<div class="main-container">
+			<img src="bg.jpg" class="background"></img>
+			<div class="panel">
+				<span class="label">输入用户名：</span>
+				<input class="input" type="text"/><br/>
+				<button class="button">登录</button>
+			</div>			
+		</div>
+		<script>
+			function load(){
+				$(".button").click(function(){
+					let name = $(".input").val();
+					var href = "index.html";
+					if (name == "admin"){
+						let password = prompt("请输入密码：","")
+						if (hex_sha256(password) == "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"){
+							href = "admin.html";
+						}else{
+							alert("密码错误！");
+							window.location.href = "login.html";
+						}
+					}
+					$.ajax({
+						url: "http://localhost:9002/queryUser",
+						method: "post",
+						data: {
+							username: name
+						},
+						success: function(resp){
+							if (resp == "User doesn't exists."){
+								alert("用户不存在");
+							}
+							set("user",resp);
+							window.location.href=href;	
+						}
+					});
+				});
+			}
+			window.addEventListener("load",load,true)
+		</script>
+	</body>
+</html>
+
